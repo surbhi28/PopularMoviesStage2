@@ -34,22 +34,22 @@ public class FavouriteEntry {
     private String imageBackDrop;
 
     @Ignore
-    public FavouriteEntry(String movieId, String movieTitle, String plot, String date, double votes, String imagePoster, String imageBackDrop) {
+    public FavouriteEntry(String movieId, String movieTitle, String plot, String releaseDate, double votes, String imagePoster, String imageBackDrop) {
         this.movieId = movieId;
         this.movieTitle = movieTitle;
         this.plot = plot;
-        releaseDate = date;
+        this.releaseDate = releaseDate;
         this.votes = votes;
         this.imagePoster = imagePoster;
         this.imageBackDrop = imageBackDrop;
     }
 
-    public FavouriteEntry(int id, String movieId, String movieTitle, String plot, String date, double votes, String imagePoster, String imageBackDrop) {
+    public FavouriteEntry(int id, String movieId, String movieTitle, String plot, String releaseDate, double votes, String imagePoster, String imageBackDrop) {
         this.id = id;
         this.movieId = movieId;
         this.movieTitle = movieTitle;
         this.plot = plot;
-        releaseDate = date;
+        this.releaseDate = releaseDate;
         this.votes = votes;
         this.imagePoster = imagePoster;
         this.imageBackDrop = imageBackDrop;

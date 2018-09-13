@@ -2,6 +2,7 @@ package com.example.android.popularmoviesstage1.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +17,14 @@ import java.util.List;
 
 public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.FavouriteViewHolder> {
 
+    public static final String LOG_TAG = FavouriteAdapter.class.getName();
+
     List<FavouriteEntry> favouriteList;
     Context context;
 
-    public FavouriteAdapter(Context context) {
+    public FavouriteAdapter(Context context, List<FavouriteEntry> favList) {
         this.context = context;
+        favouriteList = favList;
 
     }
 
@@ -35,6 +39,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
     public void onBindViewHolder(FavouriteViewHolder holder, int position) {
         String imagePoster = favouriteList.get(position).getImagePoster();
         String image = NetworkUtils.buildImageUrl(imagePoster).toString();
+        Log.d(LOG_TAG, "image string is " + image);
         Picasso.with(context).load(image).into(holder.imageView);
     }
 
@@ -45,12 +50,6 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
         }
         return favouriteList.size();
     }
-
-    public void favouriteData(List<FavouriteEntry> favouriteEntry) {
-        favouriteList = favouriteEntry;
-        notifyDataSetChanged();
-    }
-
 
     public class FavouriteViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;

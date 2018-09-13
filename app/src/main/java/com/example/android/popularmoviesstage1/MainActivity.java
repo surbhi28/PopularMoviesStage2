@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,6 +16,7 @@ import android.view.MenuItem;
 import com.example.android.popularmoviesstage1.Adapter.FavouriteAdapter;
 import com.example.android.popularmoviesstage1.Adapter.MovieAdapter;
 import com.example.android.popularmoviesstage1.Database.FavouriteDatabase;
+import com.example.android.popularmoviesstage1.Database.FavouriteEntry;
 import com.example.android.popularmoviesstage1.Model.Movie;
 
 import org.json.JSONArray;
@@ -44,13 +44,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.setTitle(getResources().getString(R.string.popular));
 
+        this.setTitle(getResources().getString(R.string.popular));
         mRecyclerView = findViewById(R.id.recycler_view);
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         movieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(movieAdapter);
 
@@ -100,16 +99,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 break;
         }
         return super.onOptionsItemSelected(item);
+
     }
 
     private void favouriteMovies() {
+
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(layoutManager);
-        favouriteAdapter = new FavouriteAdapter(this);
         mRecyclerView.setAdapter(favouriteAdapter);
-        favouriteAdapter.favouriteData(database.dao().getAllFavourite());
-
-
+        List<FavouriteEntry> favList = database.dao().getAllFavourite();
+        favouriteAdapter = new FavouriteAdapter(this, favList);
+        favouriteAdapter.notifyDataSetChanged();
     }
 
     public class MovieAsyncTask extends AsyncTask<String, Void, List<Movie>> {

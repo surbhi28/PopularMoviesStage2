@@ -12,10 +12,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.example.android.popularmoviesstage1.Adapter.ReviewAdapter;
 import com.example.android.popularmoviesstage1.Adapter.TrailerAdapter;
 import com.example.android.popularmoviesstage1.Database.FavouriteDatabase;
 import com.example.android.popularmoviesstage1.Database.FavouriteEntry;
 import com.example.android.popularmoviesstage1.Model.Movie;
+import com.example.android.popularmoviesstage1.Model.MovieReview;
 import com.example.android.popularmoviesstage1.Model.MovieTrailer;
 import com.squareup.picasso.Picasso;
 
@@ -48,6 +50,8 @@ public class MovieDetails extends AppCompatActivity {
     RecyclerView recyclerViewTrailer;
     @BindView(R.id.toggle_button)
     ToggleButton favouriteButton;
+    @BindView(R.id.recycler_view2)
+    RecyclerView recyclerViewReview;
 
     private FavouriteDatabase database;
 
@@ -88,23 +92,24 @@ public class MovieDetails extends AppCompatActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerViewTrailer.setLayoutManager(layoutManager);
         loadTrailers();
+        RecyclerView.LayoutManager layoutManager1 = new LinearLayoutManager(this);
+        recyclerViewReview.setLayoutManager(layoutManager1);
+        loadReviews();
     }
 
     private void saveFavouriteMovie() {
-        Intent intent = getIntent();
-        Bundle bundle = intent.getBundleExtra("BUNDLE");
-        movie = (Movie) bundle.getSerializable("movie");
 
         String movieId = movie.getId();
         String title = movie.getTitle();
         String plot = movie.getPlot();
-        String date = movie.getReleaseDate();
+        String releaseDate = movie.getReleaseDate();
         double votes = movie.getVotes();
         String posterPath = movie.getImagePoster();
         String imageBackDrop = movie.getImageBackDrop();
 
-        final FavouriteEntry favouriteEntry = new FavouriteEntry(movieId, title, plot, date, votes, posterPath, imageBackDrop);
+        FavouriteEntry favouriteEntry = new FavouriteEntry(movieId, title, plot, releaseDate, votes, posterPath, imageBackDrop);
         database.dao().insertFav(favouriteEntry);
+        Log.d(LOG_TAG, "movie saved" + favouriteEntry.getMovieTitle());
 
     }
 
@@ -113,13 +118,13 @@ public class MovieDetails extends AppCompatActivity {
         String id = movie.getId();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Api.TrailerApi.BASE_URL)
+                .baseUrl(Api.MovieApi.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        Api.TrailerApi api = retrofit.create(Api.TrailerApi.class);
+        Api.MovieApi api = retrofit.create(Api.MovieApi.class);
 
-        Call<MovieTrailer> call = api.getTrailer(id, "");
+        Call<MovieTrailer> call = api.getTrailer(id, "9346b156838a1d030580dfddf98237f4");
         call.enqueue(new Callback<MovieTrailer>() {
             @Override
             public void onResponse(Call<MovieTrailer> call, Response<MovieTrailer> response) {
@@ -129,7 +134,7 @@ public class MovieDetails extends AppCompatActivity {
                     recyclerViewTrailer.setHasFixedSize(true);
                     recyclerViewTrailer.setAdapter(new TrailerAdapter(getApplicationContext(), trailerList));
                 } else {
-                    Toast.makeText(MovieDetails.this, "Error in Fetching , Check Logs", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MovieDetails.this, "Error in Fetching Trailers , Check Logs", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -138,5 +143,36 @@ public class MovieDetails extends AppCompatActivity {
                 Log.d(LOG_TAG, "Failure occured", t);
             }
         });
+    }
+
+    private void loadReviews() {
+
+        String id = movie.getId();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Api.MovieApi.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        Api.MovieApi api = retrofit.create(Api.MovieApi.class);
+
+        Call<MovieReview> call = api.getReview(id, "9346b156838a1d030580dfddf98237f4");
+        call.enqueue(new Callback<MovieReview>() {
+            @Override
+            public void onResponse(Call<MovieReview> call, Response<MovieReview> response) {
+                if (response.body() != null) {
+                    List<MovieReview> reviewList = response.body().getResults();
+                    recyclerViewReview.setAdapter(new ReviewAdapter(getApplicationContext(), reviewList));
+                } else {
+                    Toast.makeText(MovieDetails.this, "Error in Fetching Reviews , Check Logs", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieReview> call, Throwable t) {
+                Log.d(LOG_TAG, "Failure occured", t);
+            }
+        });
+
     }
 }

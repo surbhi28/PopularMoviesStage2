@@ -16,7 +16,7 @@ public final class NetworkUtils {
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     private static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
     private static String API_KEY = "api_key";
-    private static String apiKey = "";
+    private static String apiKey = "9346b156838a1d030580dfddf98237f4";
 
 
     public static URL buildUrl(String query) {
