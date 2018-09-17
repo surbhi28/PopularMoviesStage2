@@ -40,7 +40,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
         String imagePoster = favouriteList.get(position).getImagePoster();
         String image = NetworkUtils.buildImageUrl(imagePoster).toString();
         Log.d(LOG_TAG, "image string is " + image);
-        Picasso.with(context).load(image).into(holder.imageView);
+        Picasso.with(context).load(image).placeholder(R.drawable.download).into(holder.imageView);
     }
 
     @Override

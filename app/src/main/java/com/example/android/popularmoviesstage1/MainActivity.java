@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private FavouriteAdapter favouriteAdapter;
     private String SEARCH_QUERY = "popular";
     private FavouriteDatabase database;
+    GridLayoutManager layoutManager;
 
 
     @Override
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         this.setTitle(getResources().getString(R.string.popular));
         mRecyclerView = findViewById(R.id.recycler_view);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        layoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(layoutManager);
         movieAdapter = new MovieAdapter(this);
         mRecyclerView.setAdapter(movieAdapter);
@@ -80,12 +81,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.popular_movies:
+                layoutManager = new GridLayoutManager(this, 2);
+                mRecyclerView.setLayoutManager(layoutManager);
+                movieAdapter = new MovieAdapter(this);
+                mRecyclerView.setAdapter(movieAdapter);
                 movieAdapter.movieData(null);
                 SEARCH_QUERY = "popular";
                 new MovieAsyncTask().execute(SEARCH_QUERY);
                 this.setTitle(getResources().getString(R.string.popular));
                 break;
             case R.id.top_rated_movies:
+                mRecyclerView.setLayoutManager(layoutManager);
+                movieAdapter = new MovieAdapter(this);
+                mRecyclerView.setAdapter(movieAdapter);
                 movieAdapter.movieData(null);
                 SEARCH_QUERY = "top_rated";
                 new MovieAsyncTask().execute(SEARCH_QUERY);
@@ -93,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 break;
             case R.id.favourite_movies:
                 favouriteMovies();
+                this.setTitle(getResources().getString(R.string.favourite));
                 break;
             case R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
@@ -104,18 +113,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private void favouriteMovies() {
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
+        RecyclerView mRecyclerView = findViewById(R.id.recycler_view);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setAdapter(favouriteAdapter);
         List<FavouriteEntry> favList = database.dao().getAllFavourite();
         favouriteAdapter = new FavouriteAdapter(this, favList);
+        mRecyclerView.setAdapter(favouriteAdapter);
         favouriteAdapter.notifyDataSetChanged();
     }
 
     public class MovieAsyncTask extends AsyncTask<String, Void, List<Movie>> {
         @Override
         protected List<Movie> doInBackground(String... strings) {
-
             URL url = NetworkUtils.buildUrl(strings[0]);
             String jsonResponse = "";
             try {
