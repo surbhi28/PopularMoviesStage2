@@ -16,13 +16,12 @@ public final class NetworkUtils {
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     private static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
     private static String API_KEY = "api_key";
-    private static String apiKey = "9346b156838a1d030580dfddf98237f4";
 
 
     public static URL buildUrl(String query) {
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                 .appendPath(query)
-                .appendQueryParameter(API_KEY, apiKey)
+                .appendQueryParameter(API_KEY, BuildConfig.My_Api_Key)
                 .build();
 
         URL url = null;

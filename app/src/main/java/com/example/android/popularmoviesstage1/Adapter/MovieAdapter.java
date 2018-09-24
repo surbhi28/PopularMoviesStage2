@@ -37,7 +37,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         String imageString = mMovie.get(position).getImagePoster();
         String image = NetworkUtils.buildImageUrl(imageString).toString();
-        Picasso.with(context).load(image).into(holder.mImage);
+        Picasso.with(context).load(image).placeholder(R.drawable.download).into(holder.mImage);
 
     }
 

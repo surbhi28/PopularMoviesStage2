@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:background="@color/cardview_shadow_start_color"
-    card_view:cardElevation="4dp">
+    card_view:cardElevation="5dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
             android:id="@+id/trailer_image"
             android:layout_width="80dp"
             android:layout_height="match_parent"
-            android:layout_marginRight="10dp"
+            android:layout_marginLeft="12dp"
             android:src="@drawable/youtube_icon" />
 
         <TextView
@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_toRightOf="@id/trailer_image"
+            android:layout_marginLeft="8dp"
             android:textColor="@color/colorPrimary"
             android:textSize="15sp"
             tools:text="TextView" />

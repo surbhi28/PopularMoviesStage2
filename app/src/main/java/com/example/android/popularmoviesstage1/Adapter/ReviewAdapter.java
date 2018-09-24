@@ -31,11 +31,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     @Override
     public void onBindViewHolder(ReviewViewHolder holder, int position) {
-        if (reviewList == null) {
-            holder.noReviewView.setVisibility(View.VISIBLE);
-            holder.noReviewView.setText("NO REVIEW");
+        if (reviewList.isEmpty()) {
             holder.authorView.setVisibility(View.GONE);
             holder.contentView.setVisibility(View.GONE);
+            holder.noReviewView.setVisibility(View.VISIBLE);
         } else {
             holder.noReviewView.setVisibility(View.GONE);
             holder.authorView.setVisibility(View.VISIBLE);

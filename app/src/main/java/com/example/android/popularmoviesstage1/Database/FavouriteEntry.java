@@ -6,8 +6,10 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "favourite")
-public class FavouriteEntry {
+public class FavouriteEntry implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -118,4 +120,5 @@ public class FavouriteEntry {
     public void setImageBackDrop(String imageBackDrop) {
         this.imageBackDrop = imageBackDrop;
     }
+
 }

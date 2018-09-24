@@ -1,6 +1,8 @@
 package com.example.android.popularmoviesstage1.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,11 +11,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.android.popularmoviesstage1.Database.FavouriteEntry;
+import com.example.android.popularmoviesstage1.FavouriteDetails;
 import com.example.android.popularmoviesstage1.NetworkUtils;
 import com.example.android.popularmoviesstage1.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.FavouriteViewHolder> {
 
@@ -22,10 +28,8 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
     List<FavouriteEntry> favouriteList;
     Context context;
 
-    public FavouriteAdapter(Context context, List<FavouriteEntry> favList) {
+    public FavouriteAdapter(Context context) {
         this.context = context;
-        favouriteList = favList;
-
     }
 
     @Override
@@ -36,11 +40,23 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
     }
 
     @Override
-    public void onBindViewHolder(FavouriteViewHolder holder, int position) {
+    public void onBindViewHolder(FavouriteViewHolder holder, final int position) {
         String imagePoster = favouriteList.get(position).getImagePoster();
         String image = NetworkUtils.buildImageUrl(imagePoster).toString();
         Log.d(LOG_TAG, "image string is " + image);
-        Picasso.with(context).load(image).placeholder(R.drawable.download).into(holder.imageView);
+        Picasso.with(context).load(image).placeholder(R.drawable.download).into(holder.favImage);
+        holder.favImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FavouriteEntry favouriteEntry = favouriteList.get(position);
+                Bundle mBundle = new Bundle();
+                Intent intent = new Intent(context, FavouriteDetails.class);
+                mBundle.putSerializable("favourite", favouriteEntry);
+                intent.putExtra("BUNDLE", mBundle);
+                context.startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -51,12 +67,20 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
         return favouriteList.size();
     }
 
+
+    public void saveFavourite(List<FavouriteEntry> favList) {
+        favouriteList = favList;
+        notifyDataSetChanged();
+
+    }
+
     public class FavouriteViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
+        @BindView(R.id.image)
+        ImageView favImage;
 
         public FavouriteViewHolder(View itemView) {
             super(itemView);
-            itemView.findViewById(R.id.image);
+            ButterKnife.bind(this, itemView);
         }
     }
 }

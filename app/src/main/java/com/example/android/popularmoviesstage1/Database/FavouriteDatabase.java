@@ -20,7 +20,6 @@ public abstract class FavouriteDatabase extends RoomDatabase {
                 Log.d(LOG_TAG, "Creating New Database Instance");
                 sInstance = Room.databaseBuilder(context.getApplicationContext(),
                         FavouriteDatabase.class, FavouriteDatabase.DATABASE_NAME)
-                        .allowMainThreadQueries()
                         .build();
             }
         }
