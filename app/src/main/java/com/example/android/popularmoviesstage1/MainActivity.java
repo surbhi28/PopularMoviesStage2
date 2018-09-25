@@ -39,17 +39,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     public static final String LOG_TAG = MainActivity.class.getName();
 
-    public static String RECYCLER_VIEW_ID = "recycler_view_id";
-    public static String RECYCLER_VIEW_DATASET_ID = "recycler_view_dataset_id";
+    public static String SAVED_RECYCLER_STATE = "recycler_state";
     List<Movie> movies;
+    Parcelable listState;
+    LinearLayoutManager layoutManager;
+    String title;
+    FavouriteAdapter favouriteAdapter;
     private RecyclerView mRecyclerView;
     private MovieAdapter movieAdapter;
     private String SEARCH_QUERY = "popular";
     private FavouriteDatabase database;
-    ArrayList<Movie> mDataSet;
-    Parcelable listState;
-    LinearLayoutManager layoutManager;
-    String title;
 
     public static int calculateNoOfColumns(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -74,16 +73,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         database = FavouriteDatabase.getInstance(getApplicationContext());
 
         if (savedInstanceState != null) {
-            listState = savedInstanceState.getParcelable(RECYCLER_VIEW_ID);
-            mDataSet = savedInstanceState.getParcelableArrayList(RECYCLER_VIEW_DATASET_ID);
-            title = savedInstanceState.getString("TITLE");
-            if (title.contains(getResources().getString(R.string.popular)) || title.contains(getResources().getString(R.string.top_rated_movies))) {
-                movieAdapter = new MovieAdapter(this);
-                mRecyclerView.setAdapter(movieAdapter);
-                movieAdapter.movieData(mDataSet);
-                layoutManager.onRestoreInstanceState(listState);
+            layoutManager.onRestoreInstanceState(listState);
+            String title1 = savedInstanceState.getString("TITLE");
+            if ((title1.equalsIgnoreCase(getResources().getString(R.string.popular))) || (title1.equalsIgnoreCase(getResources().getString(R.string.top_rated_movies)))) {
+                MovieAdapter movieAdapter1 = new MovieAdapter(this);
+                mRecyclerView.setAdapter(movieAdapter1);
+                movieAdapter1.movieData(movies);
+                this.setTitle(title1);
             }
         } else {
+
             this.setTitle(getResources().getString(R.string.popular));
             movieAdapter = new MovieAdapter(this);
             mRecyclerView.setAdapter(movieAdapter);
@@ -91,20 +90,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             new MovieAsyncTask().execute(SEARCH_QUERY);
         }
 
-
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
         listState = layoutManager.onSaveInstanceState();
         title = getTitle().toString();
-        outState.putParcelable(RECYCLER_VIEW_ID, listState);
-        outState.putString("TITLE", title);
-        outState.putParcelableArrayList(RECYCLER_VIEW_DATASET_ID, mDataSet);
-        super.onSaveInstanceState(outState);
-
+        state.putParcelable(SAVED_RECYCLER_STATE, listState);
+        state.putString("TITLE", title);
+        Log.d(LOG_TAG, "Title is onSave" + title);
     }
 
+    @Override
+    public void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+        if (state != null) {
+            title = state.getString("TITLE");
+            listState = state.getParcelable(SAVED_RECYCLER_STATE);
+            Log.d(LOG_TAG, "Inside onRestore title " + title);
+        }
+    }
     @Override
     public void onListItemClicked(int clickedItemIndex) {
         Movie movie = movies.get(clickedItemIndex);
@@ -154,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     private void favouriteMovies() {
-        final FavouriteAdapter favouriteAdapter = new FavouriteAdapter(getApplicationContext());
+        favouriteAdapter = new FavouriteAdapter(getApplicationContext());
         mRecyclerView.setAdapter(favouriteAdapter);
 
         MainViewModal viewModal = ViewModelProviders.of(this).get(MainViewModal.class);
