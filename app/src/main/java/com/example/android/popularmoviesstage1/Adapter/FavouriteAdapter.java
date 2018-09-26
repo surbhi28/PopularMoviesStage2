@@ -32,6 +32,11 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
         this.context = context;
     }
 
+    public FavouriteAdapter(Context context, List<FavouriteEntry> FavList) {
+        this.context = context;
+        favouriteList = FavList;
+    }
+
     @Override
     public FavouriteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context = parent.getContext();
@@ -70,7 +75,6 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.Favo
 
     public void saveFavourite(List<FavouriteEntry> favList) {
         favouriteList = favList;
-        notifyDataSetChanged();
 
     }
 

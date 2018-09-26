@@ -47,8 +47,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return mMovie.size();
     }
 
-    public void movieData(List<Movie> movies) {
+    public void movieData(List<Movie> movies, Context context) {
         mMovie = movies;
+        this.context = context;
         notifyDataSetChanged();
 
     }

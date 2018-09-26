@@ -41,9 +41,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     public static String SAVED_RECYCLER_STATE = "recycler_state";
     List<Movie> movies;
+    List<FavouriteEntry> FavList;
     Parcelable listState;
     LinearLayoutManager layoutManager;
-    String title;
     FavouriteAdapter favouriteAdapter;
     private RecyclerView mRecyclerView;
     private MovieAdapter movieAdapter;
@@ -65,30 +65,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         mRecyclerView = findViewById(R.id.recycler_view);
 
         layoutManager = new GridLayoutManager(this, calculateNoOfColumns(getApplicationContext()));
         mRecyclerView.setLayoutManager(layoutManager);
         database = FavouriteDatabase.getInstance(getApplicationContext());
-
-        if (savedInstanceState != null) {
-            layoutManager.onRestoreInstanceState(listState);
-            String title1 = savedInstanceState.getString("TITLE");
-            if ((title1.equalsIgnoreCase(getResources().getString(R.string.popular))) || (title1.equalsIgnoreCase(getResources().getString(R.string.top_rated_movies)))) {
-                MovieAdapter movieAdapter1 = new MovieAdapter(this);
-                mRecyclerView.setAdapter(movieAdapter1);
-                movieAdapter1.movieData(movies);
-                this.setTitle(title1);
-            }
-        } else {
-
-            this.setTitle(getResources().getString(R.string.popular));
-            movieAdapter = new MovieAdapter(this);
-            mRecyclerView.setAdapter(movieAdapter);
-
-            new MovieAsyncTask().execute(SEARCH_QUERY);
-        }
 
     }
 
@@ -96,21 +77,48 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         listState = layoutManager.onSaveInstanceState();
-        title = getTitle().toString();
         state.putParcelable(SAVED_RECYCLER_STATE, listState);
-        state.putString("TITLE", title);
-        Log.d(LOG_TAG, "Title is onSave" + title);
+        Log.d(LOG_TAG, " is onSave");
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
         if (state != null) {
-            title = state.getString("TITLE");
             listState = state.getParcelable(SAVED_RECYCLER_STATE);
-            Log.d(LOG_TAG, "Inside onRestore title " + title);
+            Log.d(LOG_TAG, "Inside onRestore ");
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (SEARCH_QUERY == "popular") {
+            this.setTitle(getResources().getString(R.string.popular));
+        }
+        if (SEARCH_QUERY == "top_rated") {
+            this.setTitle(getResources().getString(R.string.top_rated_movies));
+        }
+
+        if (listState != null) {
+            layoutManager.onRestoreInstanceState(listState);
+            if (SEARCH_QUERY == "") {
+                mRecyclerView.setAdapter(new FavouriteAdapter(this, FavList));
+                this.setTitle(getResources().getString(R.string.favourite));
+            } else {
+                MovieAdapter movieAdapter1 = new MovieAdapter(this);
+                mRecyclerView.setAdapter(movieAdapter1);
+                movieAdapter1.movieData(movies, this);
+            }
+        } else {
+
+            movieAdapter = new MovieAdapter(this);
+            mRecyclerView.setAdapter(movieAdapter);
+
+            new MovieAsyncTask().execute(SEARCH_QUERY);
+        }
+    }
+
     @Override
     public void onListItemClicked(int clickedItemIndex) {
         Movie movie = movies.get(clickedItemIndex);
@@ -134,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case R.id.popular_movies:
                 movieAdapter = new MovieAdapter(this);
                 mRecyclerView.setAdapter(movieAdapter);
-                movieAdapter.movieData(null);
+                movieAdapter.movieData(null, this);
                 SEARCH_QUERY = "popular";
                 new MovieAsyncTask().execute(SEARCH_QUERY);
                 this.setTitle(getResources().getString(R.string.popular));
@@ -142,12 +150,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case R.id.top_rated_movies:
                 movieAdapter = new MovieAdapter(this);
                 mRecyclerView.setAdapter(movieAdapter);
-                movieAdapter.movieData(null);
+                movieAdapter.movieData(null, this);
                 SEARCH_QUERY = "top_rated";
                 new MovieAsyncTask().execute(SEARCH_QUERY);
                 this.setTitle(getResources().getString(R.string.top_rated_movies));
                 break;
             case R.id.favourite_movies:
+                SEARCH_QUERY = "";
                 favouriteMovies();
                 this.setTitle(getResources().getString(R.string.favourite));
                 break;
@@ -167,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         viewModal.getMovies().observe(this, new Observer<List<FavouriteEntry>>() {
             @Override
             public void onChanged(@Nullable List<FavouriteEntry> favouriteEntries) {
+                FavList = favouriteEntries;
                 Log.d(LOG_TAG, "Updating List of favourite movies from LiveData in ViewModal");
                 favouriteAdapter.saveFavourite(favouriteEntries);
             }
@@ -192,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         @Override
         protected void onPostExecute(List<Movie> movies) {
             if (movies != null) {
-                movieAdapter.movieData(movies);
+                movieAdapter.movieData(movies, getApplicationContext());
             }
         }
 
