@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -39,11 +38,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     public static final String LOG_TAG = MainActivity.class.getName();
 
-    public static String SAVED_RECYCLER_STATE = "recycler_state";
+    private final String KEY_RECYCLER_STATE = "recycler_state";
     List<Movie> movies;
+    List<Movie> movieList;
     List<FavouriteEntry> FavList;
-    Parcelable listState;
-    LinearLayoutManager layoutManager;
+    Parcelable mListState;
+    GridLayoutManager mlayoutManager;
     FavouriteAdapter favouriteAdapter;
     private RecyclerView mRecyclerView;
     private MovieAdapter movieAdapter;
@@ -67,48 +67,49 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         mRecyclerView = findViewById(R.id.recycler_view);
 
-        layoutManager = new GridLayoutManager(this, calculateNoOfColumns(getApplicationContext()));
-        mRecyclerView.setLayoutManager(layoutManager);
+        mlayoutManager = new GridLayoutManager(this, 2);
+        mRecyclerView.setLayoutManager(mlayoutManager);
         database = FavouriteDatabase.getInstance(getApplicationContext());
 
     }
 
     @Override
-    public void onSaveInstanceState(Bundle state) {
+    protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
-        listState = layoutManager.onSaveInstanceState();
-        state.putParcelable(SAVED_RECYCLER_STATE, listState);
+        mListState = mlayoutManager.onSaveInstanceState();
+        state.putParcelable(KEY_RECYCLER_STATE, mListState);
         Log.d(LOG_TAG, " is onSave");
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle state) {
+    protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
         if (state != null) {
-            listState = state.getParcelable(SAVED_RECYCLER_STATE);
+            mListState = state.getParcelable(KEY_RECYCLER_STATE);
             Log.d(LOG_TAG, "Inside onRestore ");
         }
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
-        if (SEARCH_QUERY == "popular") {
+        if (SEARCH_QUERY.equals("popular")) {
             this.setTitle(getResources().getString(R.string.popular));
         }
-        if (SEARCH_QUERY == "top_rated") {
+        if (SEARCH_QUERY.equals("top_rated")) {
             this.setTitle(getResources().getString(R.string.top_rated_movies));
         }
 
-        if (listState != null) {
-            layoutManager.onRestoreInstanceState(listState);
-            if (SEARCH_QUERY == "") {
+        if (mListState != null) {
+
+            if (SEARCH_QUERY.equals("")) {
                 mRecyclerView.setAdapter(new FavouriteAdapter(this, FavList));
                 this.setTitle(getResources().getString(R.string.favourite));
             } else {
-                MovieAdapter movieAdapter1 = new MovieAdapter(this);
-                mRecyclerView.setAdapter(movieAdapter1);
-                movieAdapter1.movieData(movies, this);
+                movieAdapter = new MovieAdapter(this);
+                mRecyclerView.setAdapter(movieAdapter);
+                movieAdapter.movieData(movieList, this);
+
             }
         } else {
 
@@ -202,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         @Override
         protected void onPostExecute(List<Movie> movies) {
             if (movies != null) {
+                movieList = movies;
                 movieAdapter.movieData(movies, getApplicationContext());
             }
         }
