@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
     List<Movie> movies;
-    List<Movie> movieList;
     List<FavouriteEntry> FavList;
     Parcelable mListState;
     GridLayoutManager mlayoutManager;
@@ -101,14 +100,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         if (mListState != null) {
-
+            mlayoutManager.onRestoreInstanceState(mListState);
+            Log.d(LOG_TAG, "Inside mListState");
             if (SEARCH_QUERY.equals("")) {
                 mRecyclerView.setAdapter(new FavouriteAdapter(this, FavList));
                 this.setTitle(getResources().getString(R.string.favourite));
             } else {
+                Log.d(LOG_TAG, "Inside Popular or Toprated");
                 movieAdapter = new MovieAdapter(this);
                 mRecyclerView.setAdapter(movieAdapter);
-                movieAdapter.movieData(movieList, this);
+                movieAdapter.movieData(movies, this);
 
             }
         } else {
@@ -197,13 +198,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             }
 
             movies = getMoviesFromJson(jsonResponse);
+            Log.d(LOG_TAG, "Movie List " + movies.get(1));
             return movies;
         }
 
         @Override
         protected void onPostExecute(List<Movie> movies) {
             if (movies != null) {
-                movieList = movies;
                 movieAdapter.movieData(movies, getApplicationContext());
             }
         }
